@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yzzy.online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0b0b0f;
+  --bg2: #0e0e13;
+  --surface: #121218;
+  --border: #1c1c26;
+  --green: #00e87a;
+  --green-dim: rgba(0,232,122,.1);
+  --green-glow: rgba(0,232,122,.2);
+  --text: #e4e4f0;
+  --muted: #52526a;
+  --mono: 'IBM Plex Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --body: 'DM Sans', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+/* noise */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:9998;
+  opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 60px;
+  background: rgba(11,11,15,.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 100px 48px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 70% at 60% 50%, black 20%, transparent 75%);
+  animation: gridBreath 10s ease-in-out infinite;
+}
+@keyframes gridBreath {
+  0%,100%{opacity:.35} 50%{opacity:.6}
+}
+
+.hero-orb {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,232,122,.06) 0%, transparent 65%);
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  animation: orbFloat 14s ease-in-out infinite;
+}
+@keyframes orbFloat {
+  0%,100%{transform:translateY(-50%) scale(1)}
+  50%{transform:translateY(-53%) scale(1.05)}
+}
+
+.hero-content { position: relative; max-width: 750px; }
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--green);
+  border: 1px solid rgba(0,232,122,.25);
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: riseIn .5s .05s forwards;
+}
+.hero-tag::before {
+  content:'';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero-h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 8.5vw, 110px);
+  font-weight: 800;
+  line-height: .92;
+  letter-spacing: -3px;
+  opacity: 0;
+  animation: riseIn .6s .15s forwards;
+}
+
+.hero-h1 .dim { color: var(--muted); }
+.hero-h1 .grn { color: var(--green); }
+
+.hero-sub {
+  margin-top: 28px;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--muted);
+  max-width: 460px;
+  opacity: 0;
+  animation: riseIn .6s .3s forwards;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 12px;
+  margin-top: 44px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: riseIn .6s .45s forwards;
+}
+
+@keyframes riseIn {
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding: 12px 22px;
+  border-radius: 3px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all .18s;
+}
+.btn-green {
+  background: var(--green);
+  color: #000;
+}
+.btn-green:hover {
+  background: #fff;
+  box-shadow: 0 0 32px var(--green-glow);
+  transform: translateY(-1px);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  border-color: rgba(0,232,122,.4);
+  color: var(--green);
+  transform: translateY(-1px);
+}
+
+/* ── SECTION WRAPPER ── */
+.section { padding: 100px 48px; }
+.section-inner { max-width: 1100px; }
+
+.label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--green);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.sec-title {
+  font-family: var(--display);
+  font-size: clamp(30px, 4.5vw, 52px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  margin-bottom: 14px;
+}
+
+.sec-desc {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.75;
+  max-width: 500px;
+}
+
+/* ── NETCLIENT SECTION ── */
+.nc-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.nc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  max-width: 1100px;
+}
+
+.nc-features {
+  list-style: none;
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.nc-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: #8888a8;
+  line-height: 1.5;
+}
+
+.nc-features li span.arr {
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.nc-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+/* code window */
+.code-win {
+  background: #07070e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,.6);
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 16px;
+  background: #0b0b14;
+  border-bottom: 1px solid var(--border);
+}
+
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dr{background:#ff5f57} .dy{background:#febc2e} .dg{background:#28c840}
+
+.code-fname {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: 10px;
+  letter-spacing: 1px;
+}
+
+.code-body {
+  padding: 24px 28px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 2;
+  color: #606080;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.kw{color:#c792ea}
+.fn{color:#82aaff}
+.str{color:#c3e88d}
+.cm{color:#2e2e50;font-style:italic}
+.grn2{color:var(--green)}
+.num{color:#f78c6c}
+
+/* ── GAMES SECTION ── */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+  margin-top: 52px;
+  max-width: 1100px;
+}
+
+.game-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .2s, transform .25s, box-shadow .25s;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-card:hover {
+  border-color: rgba(0,232,122,.35);
+  transform: translateY(-5px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+
+.game-thumb {
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Apex Racer thumb */
+.thumb-apex {
+  background: linear-gradient(135deg, #080814 0%, #0c1828 60%, #060e14 100%);
+}
+.thumb-apex::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 30px,
+      rgba(0,120,255,.04) 30px,
+      rgba(0,120,255,.04) 31px
+    );
+}
+.thumb-apex .road {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,.05));
+  clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+}
+.thumb-apex .speed-lines {
+  position: absolute;
+  inset: 0;
+}
+.speed-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,200,255,.3), transparent);
+  animation: speedLine 1.5s linear infinite;
+  left: 0; right: 0;
+}
+.speed-line:nth-child(1){top:30%;animation-delay:0s}
+.speed-line:nth-child(2){top:50%;animation-delay:.5s;opacity:.6}
+.speed-line:nth-child(3){top:70%;animation-delay:1s;opacity:.4}
+@keyframes speedLine {
+  from{transform:translateX(-100%)} to{transform:translateX(100%)}
+}
+
+/* Bullet game thumb */
+.thumb-bullet {
+  background: linear-gradient(135deg, #0a0a0a 0%, #111118 100%);
+  image-rendering: pixelated;
+}
+
+.bullet-arena {
+  position: absolute;
+  inset: 0;
+}
+
+.b-player {
+  position: absolute;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #00e87a;
+  box-shadow: 0 0 12px rgba(0,232,122,.6);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  animation: playerBob 2s ease-in-out infinite;
+}
+@keyframes playerBob {
+  0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.08)}
+}
+
+.b-enemy {
+  position: absolute;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #ff4444;
+  box-shadow: 0 0 8px rgba(255,60,60,.5);
+}
+
+.b-e1 { top: 25%; left: 20%; animation: enemyOrbit1 3s linear infinite; }
+.b-e2 { top: 65%; left: 70%; animation: enemyOrbit2 4s linear infinite; }
+.b-e3 { top: 30%; left: 72%; animation: enemyOrbit3 3.5s linear infinite; }
+
+@keyframes enemyOrbit1 {
+  0%,100%{transform:translate(0,0)} 25%{transform:translate(15px,10px)} 50%{transform:translate(25px,-5px)} 75%{transform:translate(5px,-15px)}
+}
+@keyframes enemyOrbit2 {
+  0%,100%{transform:translate(0,0)} 33%{transform:translate(-20px,-15px)} 66%{transform:translate(-5px,10px)}
+}
+@keyframes enemyOrbit3 {
+  0%,100%{transform:translate(0,0)} 50%{transform:translate(-18px,12px)}
+}
+
+.b-bullet {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px #fff;
+}
+
+.bb1 { top: 45%; left: 55%; animation: bulletFly1 1.2s linear infinite; }
+.bb2 { top: 52%; left: 52%; animation: bulletFly2 .9s linear infinite .3s; }
+.bb3 { top: 48%; left: 53%; animation: bulletFly3 1.5s linear infinite .6s; }
+
+@keyframes bulletFly1 {
+  from{transform:translate(0,0);opacity:1} to{transform:translate(60px,-40px);opacity:0}
+}
+@keyframes bulletFly2 {
+  from{transform:translate(0,0);opacity:1} to{transform:translate(-50px,30px);opacity:0}
+}
+@keyframes bulletFly3 {
+  from{transform:translate(0,0);opacity:1} to{transform:translate(40px,50px);opacity:0}
+}
+
+.tag-yellow {
+  color: #ffd000;
+  border-color: rgba(255,208,0,.3);
+}
+
+.game-info {
+  padding: 20px 22px 22px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-name {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.5px;
+}
+
+.game-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.game-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.tag-green {
+  color: var(--green);
+  border-color: rgba(0,232,122,.25);
+}
+
+/* ── DEMO CALLOUT ── */
+.demo-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+
+.demo-inner {
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.demo-preview {
+  background: #07070e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.demo-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.demo-players {
+  position: absolute;
+  inset: 0;
+}
+
+.demo-player {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+}
+
+.dp1 { background: #00e87a; animation: dmove1 4s ease-in-out infinite; left: 20%; top: 30%; }
+.dp2 { background: #ff6b6b; animation: dmove2 5s ease-in-out infinite; left: 50%; top: 60%; }
+.dp3 { background: #6b9fff; animation: dmove3 3.5s ease-in-out infinite; left: 70%; top: 25%; }
+
+@keyframes dmove1 {
+  0%,100%{transform:translate(0,0)} 25%{transform:translate(30px,20px)} 50%{transform:translate(60px,-10px)} 75%{transform:translate(20px,40px)}
+}
+@keyframes dmove2 {
+  0%,100%{transform:translate(0,0)} 33%{transform:translate(-40px,-30px)} 66%{transform:translate(20px,-50px)}
+}
+@keyframes dmove3 {
+  0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,30px)}
+}
+
+.demo-label {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.demo-play-btn {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(0,232,122,.1);
+  border: 1px solid rgba(0,232,122,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all .2s;
+  z-index: 10;
+  text-decoration: none;
+}
+.demo-play-btn:hover {
+  background: rgba(0,232,122,.2);
+  transform: scale(1.1);
+  box-shadow: 0 0 30px var(--green-glow);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-logo {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer-links a:hover { color: var(--text); }
+
+.footer-credit {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #2a2a3a;
+  letter-spacing: 1px;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .7s, transform .7s;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 0 24px; }
+  .hero { padding: 90px 24px 60px; }
+  .section { padding: 72px 24px; }
+  .nc-grid, .demo-inner { grid-template-columns: 1fr; gap: 48px; }
+  footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="/">YZZY.ONLINE</a>
+  <ul class="nav-links">
+    <li><a href="#netclient">NETCLIENT</a></li>
+    <li><a href="#games">GAMES</a></li>
+    <li><a href="#demo">DEMO</a></li>
+    <li><a href="https://github.com/yzzyonline" target="_blank">GITHUB</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">YZZY ONLINE</div>
+    <h1 class="hero-h1">
+      MAKE<br>
+      <span class="grn">COOL</span><br>
+      <span class="dim">STUFF.</span>
+    </h1>
+    <p class="hero-sub">
+      Games, tools, and experiments built for the browser.
+      Multiplayer networking, fast cars, and whatever comes next.
+    </p>
+    <div class="hero-cta">
+      <a href="#games" class="btn btn-green">SEE GAMES</a>
+      <a href="#netclient" class="btn btn-outline">NETCLIENT DOCS</a>
+    </div>
+  </div>
+</section>
+
+<!-- NETCLIENT -->
+<section class="section nc-section" id="netclient">
+  <div class="nc-grid reveal">
+    <div>
+      <span class="label">// OPEN SOURCE</span>
+      <h2 class="sec-title">NetClient</h2>
+      <p class="sec-desc">
+        Lightweight WebSocket networking for browser games.
+        Rooms, relays, host management, tags, and binary — all in one dependency-free ES module.
+      </p>
+      <ul class="nc-features">
+        <li><span class="arr">→</span> Room creation, joining, and host handoff</li>
+        <li><span class="arr">→</span> Broadcast relay or direct player messaging</li>
+        <li><span class="arr">→</span> Binary ArrayBuffer support for fast position sync</li>
+        <li><span class="arr">→</span> Tags &amp; metadata for lobby filtering</li>
+        <li><span class="arr">→</span> Zero dependencies — just drop in and go</li>
+      </ul>
+      <div class="nc-actions">
+        <a href="https://yzzyonline.github.io/netClient" target="_blank" class="btn btn-green">READ DOCS</a>
+        <a href="https://yzzyonline.github.io/netClient/demo" target="_blank" class="btn btn-outline">LIVE DEMO</a>
+      </div>
+    </div>
+
+    <div class="code-win">
+      <div class="code-bar">
+        <div class="dot dr"></div>
+        <div class="dot dy"></div>
+        <div class="dot dg"></div>
+        <span class="code-fname">game.js</span>
+      </div>
+      <div class="code-body"><span class="kw">import</span> NetClient <span class="kw">from</span> <span class="str">"./netClient.js"</span>;
+
+<span class="kw">const</span> net = <span class="kw">new</span> <span class="fn">NetClient</span>(
+  <span class="str">"wss://your-server.onrender.com"</span>,
+  <span class="str">"myGame"</span>
+);
+
+net.<span class="fn">connect</span>();
+
+net.<span class="fn">on</span>(<span class="str">"connected"</span>, () => {
+  net.<span class="fn">createRoom</span>([], <span class="num">4</span>, <span class="kw">false</span>);
+});
+
+net.<span class="fn">on</span>(<span class="str">"roomCreated"</span>, (roomId) => {
+  <span class="cm">// share roomId with friends!</span>
+  console.<span class="fn">log</span>(<span class="str">"Room:"</span>, roomId);
+});
+
+net.<span class="fn">on</span>(<span class="str">"relay"</span>, (fromId, data) => {
+  <span class="fn">updatePlayer</span>(fromId, data);
+});</div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section class="section" id="games">
+  <div class="section-inner reveal">
+    <span class="label">// PROJECTS</span>
+    <h2 class="sec-title">Games</h2>
+    <p class="sec-desc">Browser games built from scratch. Fast, fun, and made to play with friends.</p>
+  </div>
+
+  <div class="games-grid reveal">
+
+    <!-- Apex Racer -->
+    <a class="game-card" href="https://yzzy5665.github.io/apex-race/" target="_blank" title="Apex Racer">
+      <div class="game-thumb thumb-apex">
+        <div class="road"></div>
+        <div class="speed-lines">
+          <div class="speed-line"></div>
+          <div class="speed-line"></div>
+          <div class="speed-line"></div>
+        </div>
+        <!-- Car silhouette -->
+        <svg style="position:relative;z-index:2;" width="64" height="28" viewBox="0 0 64 28" fill="none">
+          <rect x="8" y="12" width="48" height="12" rx="3" fill="#ff3300"/>
+          <rect x="16" y="5" width="28" height="10" rx="3" fill="#cc2200"/>
+          <circle cx="16" cy="24" r="5" fill="#111" stroke="#444" stroke-width="1.5"/>
+          <circle cx="48" cy="24" r="5" fill="#111" stroke="#444" stroke-width="1.5"/>
+          <rect x="18" y="7" width="10" height="6" rx="1" fill="rgba(100,180,255,0.3)"/>
+          <rect x="30" y="7" width="10" height="6" rx="1" fill="rgba(100,180,255,0.3)"/>
+        </svg>
+      </div>
+      <div class="game-info">
+        <div class="game-name">Apex Racer</div>
+        <div class="game-desc">Browser racing with real physics — Pacejka tire model, weight transfer, and three cars with distinct handling. FR, AWD, and FWD all drive differently.</div>
+        <div class="game-tags">
+          <span class="tag tag-green">RACING</span>
+          <span class="tag">PHYSICS</span>
+          <span class="tag">3 CARS</span>
+          <span class="tag">HTML5</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Bullet Game -->
+    <a class="game-card" href="https://yzzy5665.github.io/bulletProgram/" target="_blank" title="Bullet Game">
+      <div class="game-thumb thumb-bullet">
+        <!-- Animated circles like the game -->
+        <div class="bullet-arena">
+          <div class="b-player"></div>
+          <div class="b-enemy b-e1"></div>
+          <div class="b-enemy b-e2"></div>
+          <div class="b-enemy b-e3"></div>
+          <div class="b-bullet bb1"></div>
+          <div class="b-bullet bb2"></div>
+          <div class="b-bullet bb3"></div>
+        </div>
+      </div>
+      <div class="game-info">
+        <div class="game-name">Bullet Game</div>
+        <div class="game-desc">Pixel roguelike built in Godot. Fight off enemies with pathfinding AI in this top-down shooter. Early demo available — rough around the edges but playable.</div>
+        <div class="game-tags">
+          <span class="tag tag-yellow">EARLY DEV</span>
+          <span class="tag">ROGUELIKE</span>
+          <span class="tag">GODOT</span>
+          <span class="tag">DEMO</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="section demo-section" id="demo">
+  <div class="demo-inner reveal">
+    <div>
+      <span class="label">// TRY IT NOW</span>
+      <h2 class="sec-title">NetClient<br>Live Demo</h2>
+      <p class="sec-desc">
+        Open the demo in two tabs, create a room, and share the code.
+        Watch your squares move in real time — no setup, no install.
+      </p>
+      <div style="margin-top:36px;">
+        <a href="https://yzzyonline.github.io/netClient/demo" target="_blank" class="btn btn-green">OPEN DEMO →</a>
+      </div>
+    </div>
+
+    <div class="demo-preview">
+      <div class="demo-grid-bg"></div>
+      <div class="demo-players">
+        <div class="demo-player dp1"></div>
+        <div class="demo-player dp2"></div>
+        <div class="demo-player dp3"></div>
+      </div>
+      <a href="https://yzzyonline.github.io/netClient/demo" target="_blank" class="demo-play-btn">▶</a>
+      <div class="demo-label">MULTIPLAYER DEMO — LIVE</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-logo" href="/">YZZY.ONLINE</a>
+  <ul class="footer-links">
+    <li><a href="https://yzzyonline.github.io/netClient" target="_blank">NETCLIENT</a></li>
+    <li><a href="https://yzzyonline.github.io/netClient/demo" target="_blank">DEMO</a></li>
+    <li><a href="https://github.com/yzzyonline" target="_blank">GITHUB</a></li>
+  </ul>
+  <span class="footer-credit">MADE BY YZZY</span>
+</footer>
+
+<script>
+  // scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => io.observe(r));
+</script>
+</body>
+</html>
